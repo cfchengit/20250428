@@ -10,11 +10,10 @@ function setup() {
 
     // 啟用視訊
     video = createCapture(VIDEO);
-    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
     video.hide(); // 隱藏原始視訊元素
 
-    // 建立與 video 一樣大小的 graphics
-    graphics = createGraphics(video.width, video.height);
+    // 建立與視窗大小 80% 一樣的 graphics
+    graphics = createGraphics(windowWidth * 0.8, windowHeight * 0.8);
 
     // 載入 Handpose 模型
     handposeModel = ml5.handpose(video, () => {
@@ -30,7 +29,7 @@ function setup() {
 function draw() {
     background('#a2d2ff'); // 每次重繪時清除背景
 
-    // 將 video 的影像繪製到 graphics 上
+    // 將 video 的影像繪製到 graphics 上，並縮放以適應 graphics 的大小
     graphics.push();
     graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
     graphics.scale(-1, 1); // 水平翻轉 graphics
@@ -54,21 +53,25 @@ function draw() {
     }
 
     // 遍歷 graphics 的像素資料，分割單位與圓的大小一致
- for (let i = 0; i < graphics.width; i += circleSize) {
-    for (let j = 0; j < graphics.height; j += circleSize) {
- // 計算像素索引
-        let index = (floor(i) + floor(j) * graphics.width) * 4;
- // 取得 RGB 值
-         let r = graphics.pixels[index];
-         let g = graphics.pixels[index + 1];
-        let b = graphics.pixels[index + 2];
- // 設定圓的顏色為原始 RGB 值
-        fill(r, g, b);
-        noStroke();
-    // 繪製圓圈
-    ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
-     }
+    for (let i = 0; i < graphics.width; i += circleSize) {
+        for (let j = 0; j < graphics.height; j += circleSize) {
+            // 計算像素索引
+            let index = (floor(i) + floor(j) * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 設定圓的顏色為原始顏色
+            fill(r, g, b);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
+        }
     }
+}
 
 function getGesture() {
     if (predictions.length > 0) {
@@ -100,6 +103,7 @@ function getGesture() {
 function windowResized() {
     // 當視窗大小改變時，調整畫布大小
     resizeCanvas(windowWidth, windowHeight);
-    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
-    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+
+    // 更新 graphics 的大小為視窗的 80%
+    graphics = createGraphics(windowWidth * 0.8, windowHeight * 0.8);
 }
