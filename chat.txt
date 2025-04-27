@@ -1,0 +1,1066 @@
+1  產生一個全螢幕畫布，背景為a2d2ff，擷取video影像，正常顯示在視窗中間，佔視窗的寬高為80%
+2  使用p5.js撰寫，並程式碼寫在sketch.js內
+3  左右畫面顛倒，是否可以調整
+4  使用影像畫面，每個50*50為一個單元，採用該單元的亮度資料，並在該該影像畫面上產生一個與該亮度一樣的40*ˋ40的圓
+5  前面利用createGraphics產生一個寬高與video一樣的圖片，並抓取video影像顯示在該圖片上
+
+6  在該圖片上產生背景為黑色，一個寬高為20的圓圈，圓的顏色採用相對於video的顏色
+
+7  左右有顛倒，請改變
+8  圓的大小請隨著滑鼠的左右移動產生大小變化，圓圈大小為20到40間的變化
+
+9  graphics分割單位也隨著圓的大小作一樣寬高的改變
+10  取消滑鼠左右移動變化圓寬高，改用辨識右手手指，如果手指比出數字1，圓寬高就為30，如果手指指出5，圓寬高就為70
+
+11  在sketch.js第20行，出現以下錯誤
+Uncaught (in promise) ReferenceError: ml5 is not defined
+
+12  改為手勢握拳時，圓寬高為80，張開五指手指，寬高為40，出現剪刀(兩根手指)，寬高為20
+
+---
+
+cfchengit: 產生一個全螢幕畫布，背景為a2d2ff，擷取video影像，正常顯示在視窗中間，佔視窗的寬高為80%
+
+GitHub Copilot: 以下是使用 HTML 和 JavaScript 的程式碼，實現全螢幕畫布，背景為 `#a2d2ff`，並在畫布中間顯示擷取的視訊影像，佔視窗的寬高 80%：
+
+````html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fullscreen Video Canvas</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #a2d2ff;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const video = document.createElement('video');
+
+        // Set canvas to fullscreen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Access the user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => {
+                console.error('Error accessing webcam:', err);
+            });
+
+        // Draw video on canvas
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const videoWidth = canvas.width * 0.8;
+            const videoHeight = canvas.height * 0.8;
+            const x = (canvas.width - videoWidth) / 2;
+            const y = (canvas.height - videoHeight) / 2;
+
+            ctx.drawImage(video, x, y, videoWidth, videoHeight);
+            requestAnimationFrame(draw);
+        }
+
+        video.addEventListener('loadeddata', () => {
+            draw();
+        });
+    </script>
+</body>
+</html>
+````
+
+### 說明：
+1. **背景顏色**：`body` 和 `html` 的背景設為 `#a2d2ff`。
+2. **全螢幕畫布**：`canvas` 的大小會根據視窗大小調整，並且隨視窗縮放自動更新。
+3. **視訊顯示**：使用 `navigator.mediaDevices.getUserMedia` 取得視訊流，並將其繪製到畫布上。
+4. **視訊大小與位置**：視訊的寬高為畫布的 80%，並置中顯示。
+
+將此程式碼儲存為 `.html` 檔案，然後在瀏覽器中打開即可執行。
+
+找到 1 種授權類型的類似代碼
+
+cfchengit: 使用p5.js撰寫，並程式碼寫在sketch.js內
+
+GitHub Copilot: 以下是使用 p5.js 撰寫的程式碼，實現全螢幕畫布，背景為 `#a2d2ff`，並在畫布中間顯示擷取的視訊影像，佔視窗的寬高 80%。請將程式碼儲存為 sketch.js。
+
+### sketch.js
+````javascript
+let video;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background('#a2d2ff'); // 設定背景顏色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 計算視訊的顯示位置，讓它置中
+    let x = (width - video.width) / 2;
+    let y = (height - video.height) / 2;
+
+    // 繪製視訊到畫布
+    image(video, x, y, video.width, video.height);
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+}
+````
+
+### 使用方式：
+1. **建立專案結構**：
+   - 建立一個資料夾，例如 `p5_project`。
+   - 在資料夾內建立 index.html 和 sketch.js。
+
+2. **`index.html` 範例**：
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>Fullscreen Video Canvas</title>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+       <script src="sketch.js"></script>
+   </head>
+   <body>
+   </body>
+   </html>
+   ```
+
+3. **執行專案**：
+   - 將專案資料夾打開，使用瀏覽器開啟 index.html。
+   - 畫布會全螢幕顯示，背景為 `#a2d2ff`，視訊影像會置中並佔畫布的 80%。
+
+### 功能說明：
+- **背景顏色**：`background('#a2d2ff')` 設定畫布背景。
+- **視訊大小與位置**：`video.size` 設定視訊大小為畫布的 80%，並使用 `image` 函數將視訊置中。
+- **視窗調整**：`windowResized` 函數確保畫布和視訊大小隨視窗變化自動調整。
+
+找到 1 種授權類型的類似代碼
+
+cfchengit: 左右畫面顛倒，是否可以調整
+
+GitHub Copilot: 要將左右畫面顛倒，可以在 sketch.js 中使用 `scale(-1, 1)` 來水平翻轉視訊影像。以下是調整後的 sketch.js 程式碼：
+
+````javascript
+let video;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background('#a2d2ff'); // 設定背景顏色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 計算視訊的顯示位置，讓它置中
+    let x = (width - video.width) / 2;
+    let y = (height - video.height) / 2;
+
+    // 翻轉畫布以顛倒左右
+    push();
+    translate(width, 0); // 將畫布原點移到右上角
+    scale(-1, 1); // 水平翻轉畫布
+    image(video, x, y, video.width, video.height); // 繪製翻轉後的視訊
+    pop();
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+}
+````
+
+### 說明：
+1. **水平翻轉**：
+   - 使用 `push()` 和 `pop()` 來保存和恢復畫布的狀態。
+   - `translate(width, 0)` 將畫布的原點移到右上角。
+   - `scale(-1, 1)` 水平翻轉畫布。
+
+2. **影響範圍**：
+   - 翻轉只影響 `image(video, ...)` 的繪製，其他畫布內容不受影響。
+
+將此程式碼儲存到 sketch.js，重新執行專案即可看到左右顛倒的視訊已被修正。
+
+cfchengit: 使用影像畫面，每個50*50為一個單元，採用該單元的亮度資料，並在該該影像畫面上產生一個與該亮度一樣的40*ˋ40的圓
+
+GitHub Copilot: 以下是更新的 sketch.js 程式碼，實現將影像畫面分成 50×50 的單元，根據每個單元的亮度資料，在畫面上繪製與該亮度相對應的 40×40 的圓：
+
+````javascript
+let video;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    video = createCapture(VIDEO);
+    video.size(50, 50); // 將視訊縮小為 50×50 的單元格
+    video.hide(); // 隱藏原始視訊元素
+    noStroke(); // 不繪製圓的邊框
+}
+
+function draw() {
+    background('#a2d2ff'); // 設定背景顏色
+
+    video.loadPixels(); // 載入視訊的像素資料
+
+    // 遍歷每個單元格
+    for (let y = 0; y < video.height; y++) {
+        for (let x = 0; x < video.width; x++) {
+            // 計算像素索引
+            let index = (x + y * video.width) * 4;
+
+            // 取得 RGB 值並計算亮度
+            let r = video.pixels[index];
+            let g = video.pixels[index + 1];
+            let b = video.pixels[index + 2];
+            let brightness = (r + g + b) / 3; // 簡單平均法計算亮度
+
+            // 計算圓的位置與大小
+            let circleX = (x * width) / video.width + width / video.width / 2;
+            let circleY = (y * height) / video.height + height / video.height / 2;
+            let circleSize = map(brightness, 0, 255, 10, 40); // 將亮度映射到圓的大小範圍
+
+            // 設定圓的顏色與繪製
+            fill(brightness);
+            ellipse(circleX, circleY, circleSize, circleSize);
+        }
+    }
+}
+````
+
+### 說明：
+1. **視訊縮小**：
+   - 使用 `video.size(50, 50)` 將視訊縮小為 50×50 的單元格，方便處理每個單元的亮度。
+
+2. **亮度計算**：
+   - 使用 `(r + g + b) / 3` 計算每個像素的亮度。
+
+3. **圓的大小**：
+   - 使用 `map(brightness, 0, 255, 10, 40)` 將亮度值（0 到 255）映射到圓的大小範圍（10 到 40）。
+
+4. **圓的位置**：
+   - 每個圓的中心位置根據單元格的大小計算，確保圓在單元格的中心。
+
+5. **顏色填充**：
+   - 使用亮度值作為灰階顏色來填充圓。
+
+### 使用方式：
+將此程式碼儲存為 sketch.js，並確保 index.html 正確引用了 `p5.js` 和 sketch.js。執行後，畫布上會顯示視訊畫面，並以亮度對應的圓形進行可視化。
+
+cfchengit: 前面利用createGraphics產生一個寬高與video一樣的圖片，並抓取video影像顯示在該圖片上
+
+GitHub Copilot: 以下是更新的程式碼，使用 `createGraphics` 產生一個與 `video` 一樣大小的圖片，並將 `video` 的影像顯示在該圖片上：
+
+```javascript
+let video;
+let graphics;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background('#a2d2ff'); // 設定背景顏色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 翻轉畫布以顛倒左右
+    push();
+    translate(width, 0); // 將畫布原點移到右上角
+    scale(-1, 1); // 水平翻轉畫布
+    image(graphics, x, y, graphics.width, graphics.height); // 繪製翻轉後的 graphics
+    pop();
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 說明：
+1. **`createGraphics`**：
+   - 使用 `createGraphics` 建立一個與 `video` 一樣大小的離屏畫布（`graphics`）。
+   - 這樣可以在 `graphics` 上繪製 `video` 的影像，並進一步處理。
+
+2. **繪製影像**：
+   - 使用 `graphics.image(video, 0, 0, graphics.width, graphics.height)` 將 `video` 的影像繪製到 `graphics` 上。
+
+3. **顯示位置**：
+   - 計算 `graphics` 的顯示位置，讓它置中顯示在主畫布上。
+
+4. **翻轉畫布**：
+   - 使用 `push()` 和 `pop()`，搭配 `translate` 和 `scale`，將畫布水平翻轉。
+
+5. **視窗調整**：
+   - 當視窗大小改變時，更新 `video` 和 `graphics` 的大小，確保畫面適應新尺寸。
+
+執行此程式後，`video` 的影像會先繪製到 `graphics` 上，再顯示在主畫布中，並保持左右翻轉效果。
+
+cfchengit: 在該圖片上產生背景為黑色，一個寬高為20的圓圈，圓的顏色採用相對於video的顏色
+
+GitHub Copilot: 以下是更新的 sketch.js 程式碼，實現將 `video` 的影像繪製到 `graphics` 上，並在該圖片上產生背景為黑色的畫布，繪製寬高為 20 的圓圈，圓的顏色採用相對於 `video` 的顏色（反相顏色）：
+
+```javascript
+let video;
+let graphics;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+}
+
+function draw() {
+    background(0); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 遍歷 graphics 的像素資料，繪製反相顏色的圓圈
+    for (let i = 0; i < graphics.width; i += 20) {
+        for (let j = 0; j < graphics.height; j += 20) {
+            // 計算像素索引
+            let index = (i + j * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i, y + j, 20, 20);
+        }
+    }
+}
+```
+
+### 說明：
+1. **背景設定**：
+   - 使用 `background(0)` 將畫布背景設為黑色。
+
+2. **反相顏色計算**：
+   - 反相顏色公式為 `255 - 原始顏色值`，對 RGB 三個通道分別計算。
+
+3. **圓圈繪製**：
+   - 每隔 20 像素（`i += 20` 和 `j += 20`）繪製一個圓圈。
+   - 圓圈的顏色採用反相顏色，大小固定為 20。
+
+4. **置中顯示**：
+   - 計算 `graphics` 的顯示位置，讓圓圈相對於畫布置中。
+
+5. **像素資料處理**：
+   - 使用 `graphics.loadPixels()` 取得 `graphics` 的像素資料，並根據每個像素的顏色計算反相顏色。
+
+### 使用方式：
+將此程式碼儲存為 sketch.js，並確保 index.html 正確引用了 `p5.js` 和 sketch.js。執行後，畫布上會顯示以 `video` 的反相顏色繪製的圓圈，背景為黑色。
+
+
+cfchengit: 左右有顛倒，請改變
+
+GitHub Copilot: 以下是修正左右顛倒問題的程式碼，透過在繪製 `graphics` 時進行水平翻轉來解決：
+
+```javascript
+let video;
+let graphics;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+}
+
+function draw() {
+    background(0); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.push();
+    graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
+    graphics.scale(-1, 1); // 水平翻轉 graphics
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.pop();
+
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 遍歷 graphics 的像素資料，繪製反相顏色的圓圈
+    for (let i = 0; i < graphics.width; i += 20) {
+        for (let j = 0; j < graphics.height; j += 20) {
+            // 計算像素索引
+            let index = (i + j * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i, y + j, 20, 20);
+        }
+    }
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 修正說明：
+1. **水平翻轉 `graphics`**：
+   - 在 `graphics` 上使用 `translate(graphics.width, 0)` 和 `scale(-1, 1)`，將影像水平翻轉。
+   - 這樣可以修正左右顛倒的問題。
+
+2. **`push()` 和 `pop()`**：
+   - 使用 `push()` 和 `pop()` 確保翻轉操作只影響 `graphics`，不影響其他繪製內容。
+
+3. **其他邏輯保持不變**：
+   - 圓圈的顏色仍然採用反相顏色，大小固定為 20，並根據像素資料進行繪製。
+
+執行此程式後，畫布上的影像將不再左右顛倒，並正確顯示反相顏色的圓圈。
+
+cfchengit: 圓的大小請隨著滑鼠的左右移動產生大小變化，圓圈大小為20到40間的變化
+
+GitHub Copilot: 以下是更新的程式碼，讓圓的大小隨著滑鼠的左右移動在 20 到 40 之間變化：
+
+```javascript
+let video;
+let graphics;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.push();
+    graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
+    graphics.scale(-1, 1); // 水平翻轉 graphics
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.pop();
+
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 根據滑鼠的 X 位置計算圓的大小
+    let circleSize = map(mouseX, 0, width, 20, 40);
+    circleSize = constrain(circleSize, 20, 40); // 限制圓的大小在 20 到 40 之間
+
+    // 遍歷 graphics 的像素資料，繪製反相顏色的圓圈
+    for (let i = 0; i < graphics.width; i += 20) {
+        for (let j = 0; j < graphics.height; j += 20) {
+            // 計算像素索引
+            let index = (i + j * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i, y + j, circleSize, circleSize);
+        }
+    }
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 更新內容：
+1. **圓的大小隨滑鼠移動變化**：
+   - 使用 `map(mouseX, 0, width, 20, 40)` 將滑鼠的 X 位置映射到圓的大小範圍（20 到 40）。
+   - 使用 `constrain(circleSize, 20, 40)` 確保圓的大小不超出範圍。
+
+2. **圓圈繪製**：
+   - 每個圓圈的大小根據滑鼠的 X 位置動態調整。
+
+### 使用方式：
+執行程式後，滑鼠在畫布上左右移動時，圓圈的大小會在 20 到 40 之間變化，並根據 `video` 的反相顏色進行繪製。
+
+cfchengit: graphics分割單位也隨著圓的大小作一樣寬高的改變
+
+GitHub Copilot: 以下是更新的程式碼，讓 `graphics` 的分割單位隨著圓的大小（由滑鼠位置控制）動態改變，分割單位的寬高與圓的大小一致：
+
+```javascript
+let video;
+let graphics;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.push();
+    graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
+    graphics.scale(-1, 1); // 水平翻轉 graphics
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.pop();
+
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 根據滑鼠的 X 位置計算圓的大小
+    let circleSize = map(mouseX, 0, width, 20, 40);
+    circleSize = constrain(circleSize, 20, 40); // 限制圓的大小在 20 到 40 之間
+
+    // 遍歷 graphics 的像素資料，分割單位與圓的大小一致
+    for (let i = 0; i < graphics.width; i += circleSize) {
+        for (let j = 0; j < graphics.height; j += circleSize) {
+            // 計算像素索引
+            let index = (floor(i) + floor(j) * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
+        }
+    }
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 更新內容：
+1. **分割單位與圓的大小一致**：
+   - 使用 `circleSize` 作為分割單位的寬高（`i += circleSize` 和 `j += circleSize`）。
+   - 確保每個單位的大小與圓的大小相同。
+
+2. **圓的位置調整**：
+   - 圓的中心位置為單位格的中心，因此在繪製時加上 `circleSize / 2`。
+
+3. **像素索引計算**：
+   - 使用 `floor(i)` 和 `floor(j)` 確保索引為整數，避免浮點數誤差。
+
+### 效果：
+執行程式後，滑鼠左右移動時，圓的大小會在 20 到 40 之間變化，並且 `graphics` 的分割單位寬高會隨圓的大小同步改變，實現動態調整的效果。
+
+cfchengit: 取消滑鼠左右移動變化圓寬高，改用辨識右手手指，如果手指比出數字1，圓寬高就為30，如果手指指出5，圓寬高就為70
+
+GitHub Copilot: 要實現根據右手手指數量改變圓的大小，可以使用手部追蹤的程式庫，例如 [Handpose](https://github.com/tensorflow/tfjs-models/tree/master/handpose) 或 [MediaPipe Hands](https://google.github.io/mediapipe/solutions/hands.html)。以下是基於 `p5.js` 和 `Handpose` 的實現範例：
+
+### 更新的 sketch.js 程式碼
+```javascript
+let video;
+let graphics;
+let handposeModel;
+let predictions = [];
+let circleSize = 30; // 預設圓的大小
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+
+    // 載入 Handpose 模型
+    handposeModel = ml5.handpose(video, () => {
+        console.log("Handpose model loaded!");
+    });
+
+    // 當模型偵測到手部時，更新 predictions
+    handposeModel.on("predict", results => {
+        predictions = results;
+    });
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.push();
+    graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
+    graphics.scale(-1, 1); // 水平翻轉 graphics
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.pop();
+
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 根據手指數量更新圓的大小
+    let fingerCount = getFingerCount();
+    if (fingerCount === 1) {
+        circleSize = 30;
+    } else if (fingerCount === 5) {
+        circleSize = 70;
+    }
+
+    // 遍歷 graphics 的像素資料，分割單位與圓的大小一致
+    for (let i = 0; i < graphics.width; i += circleSize) {
+        for (let j = 0; j < graphics.height; j += circleSize) {
+            // 計算像素索引
+            let index = (floor(i) + floor(j) * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
+        }
+    }
+}
+
+function getFingerCount() {
+    if (predictions.length > 0) {
+        const hand = predictions[0];
+        const landmarks = hand.landmarks;
+
+        // 計算手指是否伸直
+        let count = 0;
+        for (let i = 1; i <= 4; i++) {
+            const tip = landmarks[i * 4]; // 指尖
+            const dip = landmarks[i * 4 - 1]; // 第二關節
+            if (tip[1] < dip[1]) {
+                count++;
+            }
+        }
+        return count + 1; // 加上大拇指
+    }
+    return 0; // 如果沒有偵測到手，回傳 0
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 說明：
+1. **Handpose 模型**：
+   - 使用 `ml5.handpose` 載入手部追蹤模型。
+   - 當模型偵測到手部時，會更新 `predictions`。
+
+2. **手指數量計算**：
+   - 根據手指的關節位置判斷手指是否伸直。
+   - 如果指尖的 Y 座標小於第二關節的 Y 座標，則判定該手指伸直。
+
+3. **圓的大小**：
+   - 如果偵測到手指數量為 1，圓的大小設為 30。
+   - 如果偵測到手指數量為 5，圓的大小設為 70。
+
+4. **動態更新**：
+   - 每次 `draw` 迴圈中，根據手指數量動態更新 `circleSize`。
+
+### 使用方式：
+1. 確保已安裝 `ml5.js`，並在 index.html 中引用：
+   ```html
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js"></script>
+   ```
+
+2. 執行程式後，將右手放在攝影機前，手指數量會影響圓的大小：
+   - 比出 1 根手指，圓的大小為 30。
+   - 比出 5 根手指，圓的大小為 70。
+
+
+cfchengit: 在sketch.js第20行，出現以下錯誤
+Uncaught (in promise) ReferenceError: ml5 is not defined
+
+
+GitHub Copilot: 這個錯誤表示 `ml5.js` 尚未正確載入或無法被找到。以下是解決方法：
+
+### 1. 確認 `ml5.js` 的載入順序
+在 index.html 中，確保 `ml5.js` 的 `<script>` 標籤位於 sketch.js 之前。例如：
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js"></script>
+<script src="sketch.js"></script>
+```
+
+如果 `ml5.js` 的 `<script>` 標籤在 sketch.js 之後，會導致 `ml5` 尚未定義的錯誤。
+
+---
+
+### 2. 確認 `ml5.js` 的 CDN 是否可用
+檢查 `https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js` 是否可以正常訪問。如果無法訪問，可能是網路問題或 CDN 不可用。
+
+解決方法：
+- 嘗試使用其他版本的 `ml5.js`，例如：
+  ```html
+  <script src="https://unpkg.com/ml5@0.6.0/dist/ml5.min.js"></script>
+  ```
+
+---
+
+### 3. 確保網頁伺服器正確運行
+如果直接打開 HTML 檔案（例如使用  協議），某些瀏覽器可能會限制外部資源的載入。建議使用本地伺服器來運行專案，例如：
+
+- **使用 VS Code 的 Live Server 插件**：
+  1. 安裝 [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)。
+  2. 右鍵點擊 index.html，選擇 **"Open with Live Server"**。
+
+- **使用 Python 簡單伺服器**：
+  在專案目錄中執行以下命令：
+  ```bash
+  python -m http.server
+  ```
+  然後在瀏覽器中訪問 `http://localhost:8000`。
+
+---
+
+### 4. 測試是否正確載入 `ml5.js`
+在 index.html 中的 `<script>` 標籤後添加以下測試程式碼，確認 `ml5` 是否正確載入：
+
+```html
+<script>
+  console.log(ml5); // 如果載入成功，應該顯示 ml5 的物件
+</script>
+```
+
+如果 `ml5` 未定義，則表示 `ml5.js` 未正確載入。
+
+---
+
+### 5. 確認 sketch.js 的路徑
+確保 sketch.js 的路徑正確，並且與 index.html 位於同一資料夾中。如果路徑錯誤，會導致 `ml5` 尚未定義的錯誤。
+
+---
+
+### 修正後的 index.html 範例
+以下是正確的 index.html 範例：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sketch</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js"></script>
+  </head>
+
+  <body>
+    <script src="sketch.js"></script>
+  </body>
+</html>
+```
+
+---
+
+### 如果問題仍未解決
+請提供更多資訊，例如：
+- 是否有其他錯誤訊息？
+- 是否使用本地伺服器運行專案？
+- 是否可以訪問 `ml5.js` 的 CDN？
+
+找到 1 種授權類型的類似代碼
+
+cfchengit: 改為手勢握拳時，圓寬高為80，張開五指手指，寬高為40，出現剪刀(兩根手指)，寬高為20
+
+GitHub Copilot: 以下是更新的程式碼，根據手勢（握拳、張開五指、剪刀手）動態改變圓的大小：
+
+```javascript
+let video;
+let graphics;
+let handposeModel;
+let predictions = [];
+let circleSize = 40; // 預設圓的大小
+
+function setup() {
+    createCanvas(windowWidth, windowHeight); // 全螢幕畫布
+    background(0); // 設定背景為黑色
+
+    // 啟用視訊
+    video = createCapture(VIDEO);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 設定視訊大小為畫布的 80%
+    video.hide(); // 隱藏原始視訊元素
+
+    // 建立與 video 一樣大小的 graphics
+    graphics = createGraphics(video.width, video.height);
+
+    // 載入 Handpose 模型
+    handposeModel = ml5.handpose(video, () => {
+        console.log("Handpose model loaded!");
+    });
+
+    // 當模型偵測到手部時，更新 predictions
+    handposeModel.on("predict", results => {
+        predictions = results;
+    });
+}
+
+function draw() {
+    background('#a2d2ff'); // 每次重繪時清除背景
+
+    // 將 video 的影像繪製到 graphics 上
+    graphics.push();
+    graphics.translate(graphics.width, 0); // 將 graphics 的原點移到右上角
+    graphics.scale(-1, 1); // 水平翻轉 graphics
+    graphics.image(video, 0, 0, graphics.width, graphics.height);
+    graphics.pop();
+
+    graphics.loadPixels(); // 載入 graphics 的像素資料
+
+    // 計算 graphics 的顯示位置，讓它置中
+    let x = (width - graphics.width) / 2;
+    let y = (height - graphics.height) / 2;
+
+    // 根據手勢更新圓的大小
+    let gesture = getGesture();
+    if (gesture === "fist") {
+        circleSize = 80; // 握拳
+    } else if (gesture === "open") {
+        circleSize = 40; // 張開五指
+    } else if (gesture === "scissors") {
+        circleSize = 20; // 剪刀手
+    }
+
+    // 遍歷 graphics 的像素資料，分割單位與圓的大小一致
+    for (let i = 0; i < graphics.width; i += circleSize) {
+        for (let j = 0; j < graphics.height; j += circleSize) {
+            // 計算像素索引
+            let index = (floor(i) + floor(j) * graphics.width) * 4;
+
+            // 取得 RGB 值
+            let r = graphics.pixels[index];
+            let g = graphics.pixels[index + 1];
+            let b = graphics.pixels[index + 2];
+
+            // 計算反相顏色
+            let invertedR = 255 - r;
+            let invertedG = 255 - g;
+            let invertedB = 255 - b;
+
+            // 設定圓的顏色
+            fill(invertedR, invertedG, invertedB);
+            noStroke();
+
+            // 繪製圓圈
+            ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
+        }
+    }
+}
+
+function getGesture() {
+    if (predictions.length > 0) {
+        const hand = predictions[0];
+        const landmarks = hand.landmarks;
+
+        // 計算手指是否伸直
+        let extendedFingers = 0;
+        for (let i = 1; i <= 4; i++) {
+            const tip = landmarks[i * 4]; // 指尖
+            const dip = landmarks[i * 4 - 1]; // 第二關節
+            if (tip[1] < dip[1]) {
+                extendedFingers++;
+            }
+        }
+
+        // 判斷手勢
+        if (extendedFingers === 0) {
+            return "fist"; // 握拳
+        } else if (extendedFingers === 2) {
+            return "scissors"; // 剪刀手
+        } else if (extendedFingers === 4) {
+            return "open"; // 張開五指
+        }
+    }
+    return "unknown"; // 無法辨識
+}
+
+function windowResized() {
+    // 當視窗大小改變時，調整畫布大小
+    resizeCanvas(windowWidth, windowHeight);
+    video.size(windowWidth * 0.8, windowHeight * 0.8); // 更新視訊大小
+    graphics.resizeCanvas(video.width, video.height); // 更新 graphics 大小
+}
+```
+
+### 說明：
+1. **手勢判斷邏輯**：
+   - **握拳**：所有手指都未伸直（`extendedFingers === 0`）。
+   - **剪刀手**：只有兩根手指伸直（`extendedFingers === 2`）。
+   - **張開五指**：所有手指都伸直（`extendedFingers === 4`）。
+
+2. **圓的大小**：
+   - 根據手勢設定 `circleSize`：
+     - 握拳：80。
+     - 張開五指：40。
+     - 剪刀手：20。
+
+3. **手勢更新**：
+   - 每次 `draw` 迴圈中，根據 `getGesture()` 的結果動態更新圓的大小。
+
+### 使用方式：
+1. 確保 `ml5.js` 已正確載入，並在 index.html 中引用：
+   ```html
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.6.0/ml5.min.js"></script>
+   ```
+
+2. 執行程式後，將右手放在攝影機前，根據手勢（握拳、張開五指、剪刀手）動態改變圓的大小。
