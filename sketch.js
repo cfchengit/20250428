@@ -54,30 +54,21 @@ function draw() {
     }
 
     // 遍歷 graphics 的像素資料，分割單位與圓的大小一致
-    for (let i = 0; i < graphics.width; i += circleSize) {
-        for (let j = 0; j < graphics.height; j += circleSize) {
-            // 計算像素索引
-            let index = (floor(i) + floor(j) * graphics.width) * 4;
-
-            // 取得 RGB 值
-            let r = graphics.pixels[index];
-            let g = graphics.pixels[index + 1];
-            let b = graphics.pixels[index + 2];
-
-            // 計算反相顏色
-            let invertedR = 255 - r;
-            let invertedG = 255 - g;
-            let invertedB = 255 - b;
-
-            // 設定圓的顏色
-            fill(invertedR, invertedG, invertedB);
-            noStroke();
-
-            // 繪製圓圈
-            ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
-        }
+ for (let i = 0; i < graphics.width; i += circleSize) {
+    for (let j = 0; j < graphics.height; j += circleSize) {
+ // 計算像素索引
+        let index = (floor(i) + floor(j) * graphics.width) * 4;
+ // 取得 RGB 值
+         let r = graphics.pixels[index];
+         let g = graphics.pixels[index + 1];
+        let b = graphics.pixels[index + 2];
+ // 設定圓的顏色為原始 RGB 值
+        fill(r, g, b);
+        noStroke();
+    // 繪製圓圈
+    ellipse(x + i + circleSize / 2, y + j + circleSize / 2, circleSize, circleSize);
+     }
     }
-}
 
 function getGesture() {
     if (predictions.length > 0) {
